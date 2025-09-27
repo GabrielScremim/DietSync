@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Overflow Developer Survey 2018</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .slide {
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            height: 90%;
+            max-height: 700px;
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            display: none;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+        }
+        
+        p, li {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        ul {
+            padding-left: 1.5rem;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            height: 200px;
+            margin: 1rem 0;
+        }
+        
+        .bar {
+            width: 60px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        .bar:hover {
+            transform: scale(1.05);
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .problem-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .problem-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .problem-title {
+            font-weight: 600;
+            color: #e74c3c;
+            margin-bottom: 0.5rem;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            margin: 1rem auto;
+            position: relative;
+        }
+        
+        .center-text {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        code {
+            background: #f1f2f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <div class="slide-counter">1/8</div>
+            <div class="center-text">
+                <h1>Stack Overflow Developer Survey 2018</h1>
+                <div style="height: 2rem;"></div>
+                <p style="font-size: 1.3rem; color: #667eea; font-weight: 600;">Análise Exploratória de Dados</p>
+                <div style="height: 3rem;"></div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">98.855</div>
+                        <div class="stat-label">Desenvolvedores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">129</div>
+                        <div class="stat-label">Atributos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">Global</div>
+                        <div class="stat-label">Abrangência</div>
+                    </div>
+                </div>
+                <div style="height: 2rem;"></div>
+                <p><span class="highlight">Base de Dados:</span> Pesquisa anual do Stack Overflow com desenvolvedores do mundo todo</p>
+                <p><span class="highlight">Categoria:</span> Tecnologia / Carreira / Educação / Desenvolvimento de Software</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Contexto -->
+        <div class="slide">
+            <div class="slide-counter">2/8</div>
+            <h2>Contexto da Pesquisa</h2>
+            
+            <h3>?? Objetivo</h3>
+            <p>Entender o perfil, interesses, condições de trabalho e hábitos dos desenvolvedores globalmente.</p>
+            
+            <h3>?? Responsável</h3>
+            <p>Stack Overflow - maior comunidade de programadores do mundo, focada em perguntas e respostas técnicas.</p>
+            
+            <h3>?? O que Representa</h3>
+            <p>Uma pesquisa anual realizada pelo Stack Overflow com sua vasta comunidade de desenvolvedores, coletando dados sobre:</p>
+            <ul>
+                <li>Demografia e localização</li>
+                <li>Salários e condições de trabalho</li>
+                <li>Tecnologias utilizadas e preferidas</li>
+                <li>Formação acadêmica e autodidata</li>
+                <li>Preferências de carreira</li>
+            </ul>
+            
+            <div class="chart-container">
+                <h4>?? Alcance Global da Pesquisa</h4>
+                <p style="color: #667eea; font-weight: 600;">Mais de 90 mil desenvolvedores de todos os continentes</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Estrutura da Base -->
+        <div class="slide">
+            <div class="slide-counter">3/8</div>
+            <h2>Estrutura da Base de Dados</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">98.855</div>
+                    <div class="stat-label">Registros (Linhas)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">129</div>
+                    <div class="stat-label">Atributos (Colunas)</div>
+                </div>
+            </div>
+
+            <h3>?? Exemplos de Dados Coletados</h3>
+            <ul>
+                <li><strong>Demografia:</strong> Idade, gênero, país, educação</li>
+                <li><strong>Carreira:</strong> Salário, tipo de desenvolvedor, anos de experiência</li>
+                <li><strong>Tecnologia:</strong> Linguagens, frameworks, ferramentas</li>
+                <li><strong>Trabalho:</strong> Tamanho da empresa, modalidade de emprego</li>
+                <li><strong>Educação:</strong> Formação formal, cursos, aprendizado autodidata</li>
+                <li><strong>Qualidade de Vida:</strong> Exercícios, hábitos, satisfação</li>
+            </ul>
+
+            
+        </div>
+
+        <!-- Slide 4: Tipos de Dados -->
+        <div class="slide">
+            <div class="slide-counter">4/8</div>
+            <h2>Tipos de Dados Existentes</h2>
+            
+            <div class="chart-container">
+                <h4>Distribuição por Tipo de Dado</h4>
+                <div class="bar-chart">
+                    <div class="bar" style="height: 100px;">
+                        <div class="bar-value">42</div>
+                        <div class="bar-label">Numéricos</div>
+                    </div>
+                    <div class="bar" style="height: 200px;">
+                        <div class="bar-value">87</div>
+                        <div class="bar-label">Categóricos</div>
+                    </div>
+                    <div class="bar" style="height: 20px;">
+                        <div class="bar-value">0</div>
+                        <div class="bar-label">Imagens</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tipo de Dado</th>
+                        <th>Quantidade</th>
+                        <th>Exemplos</th>
+                        <th>Formato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Numéricos</strong></td>
+                        <td>42 colunas</td>
+                        <td>Idade, anos de experiência, salário</td>
+                        <td>int64, float64</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Categóricos</strong></td>
+                        <td>87 colunas</td>
+                        <td>País, gênero, educação, linguagens</td>
+                        <td>object (texto)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Imagens</strong></td>
+                        <td>0 colunas</td>
+                        <td>Nenhuma coluna identificada</td>
+                        <td>N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 1.5rem;">
+                <p><span class="highlight">?? Observação Importante:</span></p>
+                <p>Diversas colunas possuem tipos mistos, indicando possíveis inconsistências que precisam ser tratadas na análise.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Problemas Encontrados -->
+        <div class="slide">
+            <div class="slide-counter">5/8</div>
+            <h2>Problemas Identificados na Base</h2>
+            
+            <div class="problem-list">
+                <div class="problem-item">
+                    <div class="problem-title">?? Dados Ausentes</div>
+                    <p>82 colunas com mais de 30% de valores ausentes (NaN). Exemplo: TimeAfterBootcamp (93,27%), MilitaryUS (84,04%)</p>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-title">?? Dados Inconsistentes</div>
+                    <p><strong>Variações de escrita:</strong> Colunas como <code>Country</code> apresentam inconsistências como "United States", "U.S.", "USA".</p>
+                    <p><strong>Identificações não padronizadas:</strong> Em <code>Gender</code> encontramos, "Female", "male", "Man".</p>
+                    <p><strong>Formato inadequado:</strong> A coluna <code>Age</code> armazena faixas como "25 - 34 years old" em formato texto, impedindo análises quantitativas diretas.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-title">?? Dados Ruidosos</div>
+                    <p>Múltiplos valores separados por ponto e vírgula (ex: DevType). Respostas extremamente subjetivas como "The survey was too long".</p>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-title">?? Dados Redundantes</div>
+                    <p><strong>Colunas correlacionadas:</strong> <code>WorkWeekHrs</code> e <code>ConvertedComp</code> podem estar correlacionadas com outras variáveis de horas/salário.</p>
+                    <p><strong>Sobreposição de informações:</strong> <code>Student</code> e <code>Employment</code> capturam aspectos similares do status profissional.</p>
+                    <p><strong>Valores ausentes excessivos:</strong> <code>MilitaryUS</code> (~83k ausentes) irrelevante para análises globais.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-title">?? Dados Desbalanceados</div>
+                    <p>Alta concentração geográfica: EUA (20.309), Índia (13.721). Disparidade de gênero: 59.458 homens vs 4.025 mulheres.</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h4>??? Pré-processamento Necessário</h4>
+                <p>Limpeza extensiva, normalização e tratamento de valores ausentes será fundamental para análises confiáveis.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Trabalhos Relacionados -->
+        <div class="slide">
+            <div class="slide-counter">6/8</div>
+            <h2>Trabalhos Relacionados</h2>
+            
+            <h3>?? Notebook 1: "Developer Survey 2018: Complete Analysis" (Kaggle)</h3>
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin: 1rem 0;">
+                <p><strong>Problemas Investigados:</strong></p>
+                <ul>
+                    <li>Análise demográfica global de desenvolvedores</li>
+                    <li>Correlação entre educação formal e salários</li>
+                    <li>Tendências de adoção de tecnologias emergentes</li>
+                </ul>
+                <p><strong>Principais Resultados:</strong></p>
+                <ul>
+                    <li>JavaScript mantém liderança com 69,8% de uso</li>
+                    <li>Desenvolvedores com mestrado ganham 23% mais em média</li>
+                    <li>Python cresceu 15% comparado ao survey anterior</li>
+                </ul>
+                <p><strong>Métodos:</strong> Análise exploratória, visualizações com Seaborn, clustering k-means</p>
+            </div>
+
+            <div class="chart-container">
+                <h4>?? Principais Insights dos Estudos</h4>
+                <div class="bar-chart">
+                    <div class="bar" style="height: 140px;">
+                        <div class="bar-value">69.8%</div>
+                        <div class="bar-label">JavaScript</div>
+                    </div>
+                    <div class="bar" style="height: 120px;">
+                        <div class="bar-value">38.8%</div>
+                        <div class="bar-label">Python</div>
+                    </div>
+                    <div class="bar" style="height: 100px;">
+                        <div class="bar-value">34.4%</div>
+                        <div class="bar-label">Java</div>
+                    </div>
+                    <div class="bar" style="height: 60px;">
+                        <div class="bar-value">28%</div>
+                        <div class="bar-label">Gap Salarial</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>?? Notebook 2: "Survey Analysis || A StackOverFlow Story" (Kaggle)</h3>
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin: 1rem 0;">
+                <p><strong>Problemas Investigados:</strong></p>
+                <ul>
+                    <li>Disparidades salariais por gênero e região</li>
+                    <li>Impacto do trabalho remoto na satisfação profissional</li>
+                    <li>Relação entre tamanho da empresa e benefícios</li>
+                </ul>
+                <p><strong>Principais Resultados:</strong></p>
+                <ul>
+                    <li>Gap salarial de 28% entre homens e mulheres globalmente</li>
+                    <li>55% dos desenvolvedores preferem trabalho remoto</li>
+                    <li>Startups oferecem 18% mais equity como compensação</li>
+                </ul>
+                <p><strong>Métodos:</strong> Análise estatística, testes de hipótese, regressão linear</p>
+            </div>
+
+            <h3>?? Estudo Oficial: "Stack Overflow 2018 Survey Insights"</h3>
+            <div style="background: #e8f4fd; padding: 1.5rem; border-radius: 10px; margin: 1rem 0; border-left: 4px solid #3498db;">
+                <p><strong>Destaques do Relatório Oficial:</strong></p>
+                <ul>
+                    <li>Mais de 100.000 respondentes em 183 países</li>
+                    <li>Diversidade: apenas 7% se identificam como mulheres</li>
+                    <li>Questões inéditas sobre IA e ética em programação</li>
+                </ul>
+                <p><strong>Impacto:</strong> Base para políticas de inclusão em empresas de tecnologia</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Novas Possibilidades -->
+        <div class="slide">
+            <div class="slide-counter">7/8</div>
+            <h2>Novas Possibilidades de Análise</h2>
+            
+            <h3>?? Problemas Inovadores Propostos</h3>
+            <div class="stats-grid">
+                <div class="stat-card" style="border-left-color: #27ae60;">
+                    <div style="font-weight: 600; color: #27ae60; margin-bottom: 0.5rem;">Migração Tecnológica</div>
+                    <div style="font-size: 0.9rem;">Identificar linguagens emergentes e tecnologias em declínio</div>
+                </div>
+                
+                <div class="stat-card" style="border-left-color: #e74c3c;">
+                    <div style="font-weight: 600; color: #e74c3c; margin-bottom: 0.5rem;">Educação vs Autodidata</div>
+                    <div style="font-size: 0.9rem;">Comparar impacto da formação formal vs aprendizado independente</div>
+                </div>
+                
+                <div class="stat-card" style="border-left-color: #f39c12;">
+                    <div style="font-weight: 600; color: #f39c12; margin-bottom: 0.5rem;">Disparidades Sociais</div>
+                    <div style="font-size: 0.9rem;">Análise profunda de gênero, etnia e localização geográfica</div>
+                </div>
+            </div>
+
+            <h3>?? Análises Avançadas Propostas</h3>
+            <ul>
+                <li><strong>Modelagem Preditiva:</strong> Prever salário baseado no perfil do desenvolvedor</li>
+                <li><strong>Análise Temporal:</strong> Comparar evolução entre surveys de diferentes anos</li>
+                <li><strong>Análise de Redes:</strong> Mapear inter-relações entre tecnologias usadas em conjunto</li>
+                <li><strong>Clustering Avançado:</strong> Identificar perfis distintos de desenvolvedores</li>
+                <li><strong>Análise de Sentimentos:</strong> Extrair insights de campos textuais livres</li>
+            </ul>
+
+            <div class="chart-container">
+                <h4>?? Valor Agregado</h4>
+                <p>Essas análises podem gerar insights valiosos para empresas de tecnologia, instituições de ensino e profissionais da área.</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Conclusão -->
+        <div class="slide">
+            <div class="slide-counter">8/8</div>
+            <h2>Conclusões</h2>
+            
+            <div class="center-text">
+                <h3 style="color: #667eea;">Base de Dados Excepcional para Análise</h3>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" style="border-left-color: #27ae60;">
+                    <div style="font-weight: 600; color: #27ae60;">? Rica em Contexto</div>
+                    <div style="font-size: 0.9rem;">Dados abrangentes sobre a comunidade global de desenvolvedores</div>
+                </div>
+                
+                <div class="stat-card" style="border-left-color: #3498db;">
+                    <div style="font-weight: 600; color: #3498db;">?? Múltiplas Perspectivas</div>
+                    <div style="font-size: 0.9rem;">Estudos de diversidade, mercado, educação e tecnologia</div>
+                </div>
+                
+                <div class="stat-card" style="border-left-color: #9b59b6;">
+                    <div style="font-weight: 600; color: #9b59b6;">?? Educacional</div>
+                    <div style="font-size: 0.9rem;">Ideal para aprendizado de análise exploratória e visualização</div>
+                </div>
+            </div>
+
+            <h3>?? Aplicações Práticas</h3>
+            <ul>
+                <li>Orientação de carreira para desenvolvedores</li>
+                <li>Estratégias de recrutamento para empresas</li>
+                <li>Planejamento curricular para instituições de ensino</li>
+                <li>Insights de mercado para a indústria de tecnologia</li>
+            </ul>
+
+            <div class="chart-container">
+                <h4>?? Referências</h4>
+                <p><strong>Base de Dados:</strong> Stack Overflow Developer Survey 2018</p>
+                <p><strong>Notebooks:</strong> "Developer Survey 2018: Complete Analysis" e "Survey Analysis || A StackOverFlow Story"</p>
+                <p><strong>Acesso:</strong> Disponível publicamente para uso educacional</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">? Anterior</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Próximo ?</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (n >= totalSlides) currentSlide = 0;
+            if (n < 0) currentSlide = totalSlides - 1;
+            
+            slides[currentSlide].classList.add('active');
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
